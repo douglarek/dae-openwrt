@@ -105,7 +105,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: release
           assets: |
-            dae*.ipk
+            dae*unstable*.ipk
 
 
       - name: Publishing to GitHub Releases
