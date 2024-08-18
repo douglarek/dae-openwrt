@@ -1,9 +1,9 @@
-name: Build dae unstable ipk
+name: Build dae release ipk
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '0 */12 * * *'
 
 permissions:
   actions: write
@@ -27,7 +27,7 @@ jobs:
           sudo apt update
           sudo apt install build-essential clang flex bison g++ gawk \
             gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev \
-            python3-setuptools rsync swig unzip zlib1g-dev file wget
+            python3-setuptools rsync swig unzip zlib1g-dev file wget jq
 
       - name: Generate build keys
         run: |
@@ -39,15 +39,19 @@ jobs:
           cat packages_ci.sec >> $GITHUB_ENV
           echo "$EOF" >> $GITHUB_ENV
 
-      - name: Get dae alpha
+      - name: Setup latest golang release
+        uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+
+      - name: Show go version
         run: |
-          git clone https://github.com/daeuniverse/dae -b main
-          cd dae
-          VER="unstable.""$(git log -1 --format="%cd" --date=short | sed s/-//g)"."$(git rev-list --count HEAD)"."$(git rev-parse --short HEAD)"
-          HEAD_REF=$(git rev-parse HEAD)
-          echo "PKG_VER=$VER" >> $GITHUB_ENV
-          echo "HEAD_REF=$HEAD_REF" >> $GITHUB_ENV
-          cd -
+          go version
+
+      - name: Get latest dae version
+        run: |
+          TAG=$(curl -s 'https://api.github.com/repos/daeuniverse/dae/releases/latest' | jq -r '.tag_name' | tr -d 'v')
+          echo "TAG=$TAG" >> $GITHUB_ENV
 
       - name: Build
         run: |
@@ -62,21 +66,18 @@ jobs:
           wget https://downloads.immortalwrt.org/snapshots/targets/rockchip/armv8/config.buildinfo -O .config
           make defconfig
           cp -a ../net package/
-          mv package/net/dae/git.Makefile package/net/dae/Makefile
-          sed -i 's/PKG_VERSION:=unstable/PKG_VERSION:=${{ env.PKG_VER }}/g' package/net/dae/Makefile
-          sed -i 's/PKG_SOURCE_VERSION:=unstable/PKG_SOURCE_VERSION:=${{ env.HEAD_REF }}/g' package/net/dae/Makefile
+          sed -i 's/PKG_VERSION:=stable/PKG_VERSION:=${{ env.TAG }}/g' package/net/dae/Makefile
+          cat package/net/dae/Makefile
           make package/net/dae/{download,check} FIXUP=1 V=s
+          cat package/net/dae/Makefile
           make package/net/dae/compile V=s
 
-          FN=$(find bin/packages -name 'dae_unstable*.ipk' | xargs basename)
-          echo "PKG_NAME=$FN" >> $GITHUB_ENV
           cd -
           find sdk/bin/packages -maxdepth 10
 
       - name: Publishing to GitHub Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.PKG_NAME }}
           path: |
             sdk/bin/packages/*/*/dae*.ipk
 
@@ -89,16 +90,6 @@ jobs:
           r="${r//$'\n'/'%0A'}"
           r="${r//$'\r'/'%0D'}"
           echo "RELEASE_BODY=$r" >> $GITHUB_OUTPUT
-
-      - name: Delete old release assets
-        uses: mknejp/delete-release-assets@v1
-        continue-on-error: true
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: release
-          assets: |
-            dae*.ipk
-
 
       - name: Publishing to GitHub Releases
         uses: svenstaro/upload-release-action@v2
