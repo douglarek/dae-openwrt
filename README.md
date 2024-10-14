@@ -2,7 +2,7 @@
 
 ## Installation
 
-1. Download the IPK files from [here](https://github.com/douglarek/dae-openwrt/releases/tag/release).
+1. Download the IPK files from [here](https://github.com/douglarek/dae-openwrt/releases).
 2. Install the packages using the following command:
 
    ```sh
