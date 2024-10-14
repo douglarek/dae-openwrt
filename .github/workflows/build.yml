@@ -93,13 +93,15 @@ jobs:
           r="${r//$'\n'/'%0A'}"
           r="${r//$'\r'/'%0D'}"
           echo "RELEASE_BODY=$r" >> $GITHUB_OUTPUT
+          tag=$(date +"%Y%m%d%H%M")
+          echo "RELEASE_TAG=$tag" >> $GITHUB_OUTPUT
 
       - name: Publishing to GitHub Releases
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: sdk/bin/packages/*/*/dae*.ipk
-          tag: release
+          tag: ${{ steps.read_release.outputs.RELEASE_TAG }}
           file_glob: true
           overwrite: true
           body: |

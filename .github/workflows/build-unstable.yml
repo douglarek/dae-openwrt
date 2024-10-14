@@ -97,13 +97,15 @@ jobs:
           r="${r//$'\n'/'%0A'}"
           r="${r//$'\r'/'%0D'}"
           echo "RELEASE_BODY=$r" >> $GITHUB_OUTPUT
+          tag=$(date +"%Y%m%d%H%M")
+          echo "RELEASE_TAG=$tag" >> $GITHUB_OUTPUT
 
       - name: Delete old release assets
         uses: mknejp/delete-release-assets@v1
         continue-on-error: true
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: release
+          tag: ${{ steps.read_release.outputs.RELEASE_TAG }}
           assets: |
             dae*unstable*.ipk
 
@@ -113,7 +115,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: sdk/bin/packages/*/*/dae*.ipk
-          tag: release
+          tag: ${{ steps.read_release.outputs.RELEASE_TAG }}
           file_glob: true
           overwrite: true
           body: |
