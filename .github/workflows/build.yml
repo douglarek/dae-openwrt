@@ -93,7 +93,7 @@ jobs:
           r="${r//$'\n'/'%0A'}"
           r="${r//$'\r'/'%0D'}"
           echo "RELEASE_BODY=$r" >> $GITHUB_OUTPUT
-          tag=$(date +"%Y%m%d%H%M")
+          tag=$(date +"%Y%m%d")
           echo "RELEASE_TAG=$tag" >> $GITHUB_OUTPUT
 
       - name: Publishing to GitHub Releases
