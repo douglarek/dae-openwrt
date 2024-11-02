@@ -24,7 +24,7 @@ PKG_BUILD_FLAGS:=no-mips16
 GO_PKG:=github.com/daeuniverse/dae
 GO_PKG_LDFLAGS_X:= \
 	$(GO_PKG)/cmd.Version=$(PKG_VERSION) \
-	$(GO_PKG)/common/consts.MaxMatchSetLen_=64
+	$(GO_PKG)/common/consts.MaxMatchSetLen_=1024
 GO_PKG_TAGS:=trace
 
 include $(INCLUDE_DIR)/package.mk
