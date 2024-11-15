@@ -1,4 +1,4 @@
-name: Build dae release ipk
+name: Build dae release.apk
 
 on:
   workflow_dispatch:
@@ -71,8 +71,7 @@ jobs:
           cat package/net/dae/Makefile
           make package/net/dae/compile V=s
 
-          find bin/packages -name '*.ipk'
-          FN=$(find bin/packages -name 'dae_*.ipk' | xargs basename)
+          FN=$(find bin/packages -name 'dae*.apk' | sort | head -1 | xargs basename)
           echo "PKG_NAME=$FN" >> $GITHUB_ENV
 
           cd -
@@ -83,7 +82,7 @@ jobs:
         with:
           name: ${{ env.PKG_NAME }}
           path: |
-            sdk/bin/packages/*/*/dae*.ipk
+            sdk/bin/packages/*/*/dae*.apk
 
       - name: Read release.md and use it as a body of new release
         id: read_release
@@ -101,7 +100,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: sdk/bin/packages/*/*/dae*.ipk
+          file: sdk/bin/packages/*/*/dae*.apk
           tag: ${{ steps.read_release.outputs.RELEASE_TAG }}
           file_glob: true
           overwrite: true
