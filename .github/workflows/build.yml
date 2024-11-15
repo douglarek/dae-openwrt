@@ -71,6 +71,7 @@ jobs:
           cat package/net/dae/Makefile
           make package/net/dae/compile V=s
 
+          find bin/packages -name '*.ipk'
           FN=$(find bin/packages -name 'dae_*.ipk' | xargs basename)
           echo "PKG_NAME=$FN" >> $GITHUB_ENV
 
