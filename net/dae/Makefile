@@ -23,7 +23,7 @@ PKG_BUILD_FLAGS:=no-mips16
 GO_PKG:=github.com/daeuniverse/dae
 GO_PKG_LDFLAGS_X:= \
 	$(GO_PKG)/cmd.Version=$(PKG_VERSION) \
-	$(GO_PKG)/common/consts.MaxMatchSetLen_=64
+	$(GO_PKG)/common/consts.MaxMatchSetLen_=1024
 GO_PKG_TAGS:=trace
 
 include $(INCLUDE_DIR)/package.mk
@@ -81,7 +81,7 @@ endef
 
 DAE_CFLAGS:= \
 	-O2 -Wall -Werror \
-	-DMAX_MATCH_SET_LEN=64 \
+	-DMAX_MATCH_SET_LEN=1024 \
 	-I$(BPF_HEADERS_DIR)/tools/lib \
 	-I$(BPF_HEADERS_DIR)/arch/$(BPF_KARCH)/include/asm/mach-generic
 
@@ -97,6 +97,7 @@ define Build/Compile
 		BPF_TARGET="bpfel,bpfeb" \
 		BPF_TRACE_TARGET="$(GO_ARCH)" ; \
 		go generate $(PKG_BUILD_DIR)/control/control.go ; \
+		go generate $(PKG_BUILD_DIR)/control/kern/tests/bpf_test.go ; \
 		go generate $(PKG_BUILD_DIR)/trace/trace.go ; \
 		$(call GoPackage/Build/Compile) ; \
 	)
