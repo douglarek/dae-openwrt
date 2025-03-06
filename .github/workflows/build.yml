@@ -50,7 +50,8 @@ jobs:
 
       - name: Get latest dae version
         run: |
-          TAG=$(curl -s 'https://api.github.com/repos/daeuniverse/dae/releases/latest' | jq -r '.tag_name' | tr -d 'v')
+          #TAG=$(curl -s 'https://api.github.com/repos/daeuniverse/dae/releases/latest' | jq -r '.tag_name' | tr -d 'v')
+          TAG="1.0.0_rc2"
           echo "TAG=$TAG" >> $GITHUB_ENV
 
       - name: Build

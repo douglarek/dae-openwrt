@@ -8,8 +8,9 @@ PKG_NAME:=dae
 PKG_VERSION:=stable
 PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).zip
-PKG_SOURCE_URL:=https://github.com/daeuniverse/dae/releases/download/v$(PKG_VERSION)/dae-full-src.zip?
+PKG_VERSION_NORMALIZED := $(subst _,,$(PKG_VERSION))
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION_NORMALIZED).zip
+PKG_SOURCE_URL:=https://github.com/daeuniverse/dae/releases/download/v$(PKG_VERSION_NORMALIZED)/dae-full-src.zip?
 PKG_HASH:=skip
 
 PKG_LICENSE:=AGPL-3.0-only
