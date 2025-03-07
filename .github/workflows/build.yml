@@ -2,6 +2,11 @@ name: Build dae release.apk
 
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Dae version to build, format: 1.0.0_rc2'
+        required: false
+        default: ''
   schedule:
     - cron: '0 */12 * * *'
 
@@ -50,14 +55,15 @@ jobs:
 
       - name: Get latest dae version
         run: |
-          #TAG=$(curl -s 'https://api.github.com/repos/daeuniverse/dae/releases/latest' | jq -r '.tag_name' | tr -d 'v')
-          TAG="1.0.0_rc2"
+          if [ -z "${{ github.event.inputs.tag }}" ]; then
+            TAG=$(curl -s 'https://api.github.com/repos/daeuniverse/dae/releases/latest' | jq -r '.tag_name' | tr -d 'v')
+          else
+            TAG="${{ github.event.inputs.tag }}"
+          fi
           echo "TAG=$TAG" >> $GITHUB_ENV
 
       - name: Build
         run: |
-          #SDK=$(curl -s -L https://downloads.immortalwrt.org/snapshots/targets/rockchip/armv8/sha256sums | grep sdk | sed 's/.* \*//')
-          #wget https://downloads.immortalwrt.org/snapshots/targets/rockchip/armv8/$SDK -O sdk.tar.xz
           SDK=$(curl -s https://api.github.com/repos/douglarek/build-openwrt/releases/latest | grep browser_download_url | cut -d : -f 2,3 | tr -d \" | grep -E 'openwrt-sdk-' | head -1)
           wget $SDK -O sdk.tar.xz
 
@@ -65,7 +71,6 @@ jobs:
           tar -I zstd -xf sdk.tar.xz --strip-components=1 -C sdk
           cd sdk
           ./scripts/feeds update -a
-          #wget https://downloads.immortalwrt.org/snapshots/targets/rockchip/armv8/config.buildinfo -O .config
           wget https://downloads.openwrt.org/snapshots/targets/rockchip/armv8/config.buildinfo -O .config
           make defconfig
           cp -a ../net package/
